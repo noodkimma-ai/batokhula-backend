@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+ 
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User{
+   id        Int @id@default(autoincrement())
+   name       String
+   email      String @unique
+   password   String
+   role       String @default("USER")
+   createAt   DateTime @default(now())
+   updatedAt  DateTime @updatedAt
+   roadreports RoadReport[]
+
+}
+
+
+
+enum RoadIssueType {
+  POTHOLES
+  ROAD_BLOCKAGE
+  FLOODING
+  ROAD_DAMAGE
+  TRAFFIC_RESTRICTION
+  LANDSLIDE
+  ACCIDENT
+}
+
+enum RoadReportStatus {
+  PENDING
+  UNDER_REVIEW
+  VERIFIED
+  REJECTED
+}
+
+model RoadReport {
+  id          String           @id @default(cuid())
+  roadName    String
+  location    String
+  latitude    Float?
+  longitude   Float?
+  issueType   RoadIssueType
+  description String
+  photoUrl    String?
+  status      RoadReportStatus @default(PENDING)
+  reporterId  Int
+  reporter    User             @relation(fields: [reporterId], references: [id])
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
