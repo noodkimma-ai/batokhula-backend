@@ -9,10 +9,19 @@ const jwt = require("jsonwebtoken");
 
 router.post("/register", async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
+
+    const allowedRole = ["USER", "ROAD_REPORTER"];
+
+    if(role && !allowedRole.includes(role)){
+      return res.status(403).json({
+        success:"false",
+        message:"You are not allowed to register with this role",
+      });
+    }
 
     if (!name || !email || !password) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         message: "Name, Email, Password are require",
       });
@@ -48,6 +57,7 @@ router.post("/register", async (req, res) => {
         name: name.trim(),
         email: normalizeEmail,
         password: hashedPassword,
+        role: role || "USER",
       },
       select: {
         id: true,
